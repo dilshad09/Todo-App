@@ -12,10 +12,24 @@ const getDataFromLS = ()=>{
 export const Todo = ()=>{
     const [addData, setAddData] = useState("")
     const [items, setItems] = useState(getDataFromLS())
+    const [isEdit, setIsEdit] = useState("")
+    const [toggleBtn, setToggleBtn] = useState(false)
     const addItems = ()=>{
         if(!addData){
             alert("please fill the data first")
-        }else{
+        }else if(addData && toggleBtn){
+           setItems( items.map((el)=>{
+            if(el.id === isEdit){
+                return {...el, name:addData}
+            }
+            return el;
+        }))
+        setAddData([])
+        setIsEdit("")
+        setToggleBtn(false)
+     
+        }
+        else{
             const myInputData = {
                 id:Date.now().toString(),
                 name:addData
@@ -33,6 +47,17 @@ export const Todo = ()=>{
          setItems(updatedItems)
      }
 
+     const editItem =  (index)=>{
+         let editedItem = items.find((el)=>{
+             return el.id === index;
+         })
+        //  setItems(editedItem)
+        //  setAddData(editedItem)
+        console.log("edite", editedItem)
+        setAddData(editedItem.name)
+        setIsEdit(index)
+        setToggleBtn(true)
+     }
      // remove all elements
      const removeAll = ()=>{
          setItems([])
@@ -50,7 +75,8 @@ export const Todo = ()=>{
             </figure>
             <div className="addItems">
                 <input type="text" value={addData || ""} onChange={(e)=>setAddData(e.target.value)} placeholder="✍ Add Items..." className="form-control" />
-                <i className="fa fa-plus add-btn" onClick={()=>{addItems()}}></i>
+                {toggleBtn ?   <i className="far fa-edit add-btn" onClick={()=>{addItems()}}></i> : <i className="fa fa-plus add-btn" onClick={()=>{addItems()}}></i>}
+                
             </div>
             {/* show our items */}
 
@@ -60,7 +86,9 @@ export const Todo = ()=>{
                     <div className="eachItem" key={el.id}>
                         <h3>{el.name}</h3>
                         <div className="todo-btn">
-                        <i className="far fa-edit add-btn"></i>
+                        <i className="far fa-edit add-btn" onClick={()=>{
+                            editItem(el.id)
+                        }}></i>
                         <i className="fa fa-trash-alt add-btn" onClick={()=>{
                             deleteItem(el.id)
                         }}></i>
